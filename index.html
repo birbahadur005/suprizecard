@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Surprise Blessing Card</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+    margin: 0;
+    height: 100vh;
+    background: linear-gradient(135deg, #ffecd2, #fcb69f);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Segoe UI', sans-serif;
+    overflow: hidden;
+}
+
+/* SURPRISE CARD */
+.card {
+    width: 360px;
+    height: 520px;
+    perspective: 1200px;
+}
+
+.inner {
+    width: 100%;
+    height: 100%;
+    transition: transform 1s;
+    transform-style: preserve-3d;
+    cursor: pointer;
+}
+
+.card.open .inner {
+    transform: rotateY(180deg);
+}
+
+/* FRONT */
+.front, .back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 25px;
+    backface-visibility: hidden;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+}
+
+.front {
+    background: linear-gradient(135deg, #ff416c, #ff4b2b);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: 22px;
+    text-align: center;
+}
+
+.front span {
+    font-size: 60px;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% {transform: scale(1);}
+    100% {transform: scale(1.1);}
+}
+
+/* BACK */
+.back {
+    background: white;
+    transform: rotateY(180deg);
+    padding: 20px;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.header {
+    font-size: 22px;
+    color: #7b2cbf;
+    font-weight: bold;
+}
+
+.toggle button {
+    border: none;
+    padding: 5px 12px;
+    border-radius: 20px;
+    margin: 5px;
+    cursor: pointer;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 15px;
+    border: none;
+    box-shadow: inset 2px 2px 6px #ccc;
+    margin-top: 15px;
+}
+
+.main-btn {
+    margin-top: 15px;
+    width: 100%;
+    padding: 12px;
+    border-radius: 30px;
+    border: none;
+    background: linear-gradient(135deg, #ff512f, #dd2476);
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.message {
+    margin-top: 15px;
+    padding: 15px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #fdfbfb, #ebedee);
+    display: none;
+    animation: fade 1s ease forwards;
+}
+
+@keyframes fade {
+    from {opacity: 0; transform: translateY(20px);}
+    to {opacity: 1; transform: translateY(0);}
+}
+
+.diya {
+    font-size: 40px;
+    animation: glow 1s infinite alternate;
+}
+
+@keyframes glow {
+    from {transform: scale(1);}
+    to {transform: scale(1.15);}
+}
+
+.signature {
+    margin-top: 10px;
+    font-weight: bold;
+    color: #7b2cbf;
+}
+
+.actions {
+    display: none;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.actions button {
+    flex: 1;
+    border: none;
+    padding: 8px;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+/* FLOWERS */
+.flower {
+    position: absolute;
+    top: -40px;
+    font-size: 22px;
+    animation: fall 6s linear infinite;
+}
+
+@keyframes fall {
+    to {
+        transform: translateY(700px) rotate(360deg);
+        opacity: 0;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="card" onclick="openCard()">
+    <div class="inner" id="inner">
+
+        <!-- FRONT -->
+        <div class="front">
+            <span>🎁</span>
+            <div>Tap to Open<br>Surprise Blessing</div>
+        </div>
+
+        <!-- BACK -->
+        <div class="back" id="capture">
+            <div class="header" id="title">🌸 Blessings 🌸</div>
+
+            <div class="toggle">
+                <button onclick="event.stopPropagation();setLang('hi')">Hindi</button>
+                <button onclick="event.stopPropagation();setLang('en')">English</button>
+            </div>
+
+            <input id="nameInput" placeholder="Enter your name"
+                   onclick="event.stopPropagation();">
+
+            <button class="main-btn"
+                    onclick="event.stopPropagation();showBlessing()">
+                Reveal Blessing
+            </button>
+
+            <div class="message" id="msg"></div>
+
+            <div class="actions" id="actions">
+                <button onclick="event.stopPropagation();downloadImage()">📸 Download</button>
+                <button onclick="event.stopPropagation();shareWhatsApp()">📤 Share</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
+<script>
+let opened = false;
+let lang = "en";
+
+function openCard() {
+    if (!opened) {
+        document.querySelector(".card").classList.add("open");
+        opened = true;
+    }
+}
+
+function setLang(l) {
+    lang = l;
+    title.innerText = l === "hi" ? "🌸 शुभ आशीर्वाद 🌸" : "🌸 Blessings 🌸";
+    nameInput.placeholder = l === "hi" ? "अपना नाम लिखें" : "Enter your name";
+}
+
+function showBlessing() {
+    const name = nameInput.value.trim();
+    if (!name) return;
+
+    msg.style.display = "block";
+    actions.style.display = "flex";
+
+    msg.innerHTML =
+        `<div class="diya">🪔</div><br>` +
+        (lang === "hi"
+        ? `प्रिय <b>${name}</b>,<br>
+           ईश्वर आपको और आपके परिवार को सुख, शांति और समृद्धि प्रदान करें।`
+        : `Dear <b>${name}</b>,<br>
+           May God bless you and your family with peace, health, and prosperity.`) +
+        `<div class="signature">– BIR BAHADUR</div>`;
+
+    flowers();
+}
+
+function flowers() {
+    for (let i = 0; i < 12; i++) {
+        const f = document.createElement("div");
+        f.className = "flower";
+        f.innerText = "🌸";
+        f.style.left = Math.random() * 100 + "%";
+        document.body.appendChild(f);
+        setTimeout(() => f.remove(), 6000);
+    }
+}
+
+function downloadImage() {
+    html2canvas(document.getElementById("capture")).then(canvas => {
+        const a = document.createElement("a");
+        a.download = "blessing-card.png";
+        a.href = canvas.toDataURL();
+        a.click();
+    });
+}
+
+function shareWhatsApp() {
+    window.open(`https://wa.me/?text=${encodeURIComponent(msg.innerText)}`);
+}
+</script>
+
+</body>
+</html>
